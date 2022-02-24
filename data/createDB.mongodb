@@ -1,0 +1,2 @@
+mongoimport persons.json -d contactData -c contacts --jsonArray
+mongoimport array-data.json -d contactData -c friends --jsonArray;
