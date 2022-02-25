@@ -1,2 +1,4 @@
 mongoimport persons.json -d contactData -c contacts --jsonArray
-mongoimport array-data.json -d contactData -c friends --jsonArray;
+mongoimport array-data.json -d contactData -c friends --jsonArray
+mongoimport tv-shows.json -d movieData -c shows --jsonArray
+mongoimport users.json -d contactData -c users --jsonArray

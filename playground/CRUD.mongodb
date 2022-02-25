@@ -1,0 +1,134 @@
+ // CRUD operations
+ // ~~ CREATE ~~ //
+ // insertOne, insertMany, ordered, writeConcerns, journaling
+ // https://docs.mongodb.com/manual/reference/write-concern/
+ use('companyData');
+ db.companies.insertOne({name: "Fresh Food Inc", stock: 100, _id: 1});
+
+ use('companyData');
+ db.companies.insertMany([
+     {name: "Brocolli Business", stock: 32, _id:2},
+     {name: "Smart Phone Inc", stock: 232, _id:3},
+     {name: "Organic Beef Co", stock: 55, _id:4}
+ ], {ordered: false});
+
+  use('companyData');
+  db.companies.insertOne({name: "Strong Tables Inc", stock: 919, _id: 5},
+  {writeConcern: {w: 1, j: true}})
+  db.companies.find();
+
+ // ~~ READ ~~ //
+ use('movieData');
+ db.shows.find({name: 'Berserk'}).pretty();
+ db.shows.find({runtime: {$lt:60}}).count();
+ db.shows.find({"rating.average": {$gt: 7.0}}).pretty()
+ db.shows.find({genres: "Drama"});
+
+ db.shows.find({genres: ["Drama"]});
+ db.shows.find({runtime: {$in: [30,42]}}).pretty()
+ db.shows.find({runtime: {$nin: [30,42]}}).pretty()
+
+ db.shows.find({$or: [{"rating.average": {$lt: 5}},
+ {"rating.average": {$gt: 9.3}}]})
+
+ db.shows.find({$nor: [{"rating.average": {$lt: 5}},
+ {"rating.average": {$gt: 9.3}}]})
+
+ db.shows.find({$and: [{"rating.average": {$gt:9}},
+ {genres: "Drama"}]}).count()
+
+ db.shows.find({"rating.average": {$gt:9}, genres: "Drama"}).count() // if you look for values on same field, need $and (even tho find is $and by default)
+
+
+ use('contactData')
+ db.friends.insertOne({
+     name: "Hamez",
+     age: null
+ })
+
+ use('contactData')
+db.friends.find({age: {$exists: true, $eq: null}});
+
+// projection to only show the data you want
+use('movieData');
+db.shows.find({},
+{name: 1,
+ genres: 1,
+  runtime: 1,
+   rating: 1}).pretty();
+
+// projection on arrays
+use('movieData');
+db.shows.find(
+    {genres: "Drama"},
+    {"genres.$": 1}).pretty();
+
+use('movieData');
+db.shows.find( {$and: [{genres: "Drama"}, {genres: "Horror"}]}, );
+
+use('movieData');
+db.shows.find({genres: {$all: ["Drama", "Horror"]}}, {"genres.$": 1}).pretty();
+
+// slice operator
+use('movieData')
+db.shows.find({"rating.average": {$gt: 7}}, {genres: {$slice: 2}, name: 1}).pretty()
+
+
+
+
+ // ~~UPDATE ~~ //
+ use('contactData');
+ db.users.updateOne({_id: ObjectId("6217d3590c5afe762df51d07")},
+    {$set: {hobbies: [
+        {title: "Sports", frequency: 5},
+        {title: "Cooking", frequency: 3},
+        {title: "Hiking", frequency: 6}
+    ]}})
+
+ 
+
+db.users.updateMany({"hobbies.title": "Sports"}, {$set: {isSporty: true}})
+
+db.users.updateOne({_id: ObjectId("6217d3590c5afe762df51d07")}, {$set: {phone: 8976765353, age: 35}})
+db.users.find();
+
+
+use('contactData');
+db.users.find({$and: [{"hobbies.title": "Sports"}, {"hobbies.frequency": {$gte: 3}}]})
+
+db.users.find({hobbies: {$elemMatch: {title: "Sports", frequency: {$gte: 3}}}})
+
+
+db.users.updateMany({hobbies: {$elemMatch: {title: "Sports", frequency: {$gte: 3}}}},
+    {$set: {"hobbies.$.highFrequency": true}}); // $ is useful operator to get access to matched array element
+db.users.find();
+
+use('contactData');
+db.users.find({"hobbies.frequency": {$gt: 2}});
+
+db.users.updateMany({"hobbies.frequency": {$gt: 2}},
+    {$set: {"hobbies.$[].highFrequency": 1}});
+db.users.find();
+
+
+use('contactData');
+db.users.updateMany({"hobbies.frequency": {$gt: 2}},
+    {$set: {"hobbies.$[el].goodFrequency": true}}, {arrayFilters: [{"el.frequency": {$gt: 2}}]});
+db.users.find();
+
+use('contactData');
+db.users.updateOne({name: "Chris"}, {$push: {hobbies: {title: "Reading", frequency: 2}}})
+db.users.find()
+
+
+ // ~~ DELETE~~ //
+ use('contactData')
+ db.users.deleteOne({name: "Chris"});
+ db.users.find()
+
+ db.users.deleteMany({age: {$exists: false}, isSporty: true})
+  db.users.find()
+
+  // deleting all entries in a collection
+  db.users.drop();
+  db.dropDatabase();

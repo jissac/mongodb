@@ -99,5 +99,16 @@ db.contacts.aggregate([
 ]).pretty()
 
 // 
-use('friends');
-db.friends.find().pretty();
+use('contactData');
+db.friends.aggregate([
+    {
+        $group: {
+            _id: {
+                age: "$age"
+            },
+            allHobbies: { 
+                $push: "$hobbies"
+            }
+        }
+    }
+])
