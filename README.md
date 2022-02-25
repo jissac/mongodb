@@ -5,6 +5,6 @@ mongodb
 `/playground` - mongodb files to run in vscode             
 `/web-app` - notes app using Flask and Mongodb             
 
-references: 
+references:         
 https://www.mongodb.com/developer/quickstart/cheat-sheet/         
 https://docs.mongodb.com/manual/            
